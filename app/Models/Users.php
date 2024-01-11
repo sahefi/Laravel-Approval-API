@@ -19,7 +19,11 @@ class Users extends Authenticatable implements JWTSubject
 
     public function role()
     {
-        return $this->belongsTo(Roles::class,'id_role');
+        return $this->belongsTo(Roles::class,'id','id_role');
+    }
+
+    public function approver(){
+        return $this->hasMany(Booking::class,'id','id_approver');
     }
 
     public function getJWTIdentifier()

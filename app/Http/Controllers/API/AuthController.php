@@ -24,6 +24,15 @@ class AuthController extends Controller
         ]);
         return $dataValidator;
     }
+
+    function loginValidator(array $data)
+    {
+        $dataValidator = Validator::make($data,[
+            'username'=> ['string','required'],
+            'password'=>['string','required']
+        ]);
+        return $dataValidator;
+    }
  /**
      * Create a new AuthController instance.
      *
@@ -68,12 +77,18 @@ class AuthController extends Controller
         ]);
     }
 
-    public function login()
+    public function login(Request $request)
     {
-        $credentials = request(['username', 'password']);
-
+        $validator = $this->loginValidator($request->all());
+        if($validator->fails()){
+            return response()->json(['error'=>$validator->errors()],400);
+        }
+        $credentials = $request->only(['username', 'password']);
         if (! $token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json([
+                'status'=>false,
+                'error'=>'Credential Not Match'
+            ] , 401);
         }
 
         return $this->respondWithToken($token);
@@ -104,9 +119,13 @@ class AuthController extends Controller
     protected function respondWithToken($token)
     {
         return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 600000
+            'status'=> true,
+            'message'=>'Success',
+            'data'=>[
+                'access_token' => $token,
+                'token_type' => 'bearer',
+                'expires_in' => auth()->factory()->getTTL() * 600000
+            ]
         ]);
     }
 
