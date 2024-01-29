@@ -4,11 +4,10 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
-use App\Models\Users;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class BookingController extends Controller
@@ -36,9 +35,87 @@ class BookingController extends Controller
         ]);
         return $dataValidator;
     }
-    public function index()
+    public function indexApprover(Request $request)
     {
-        //
+        $per_page = $request->filled('per_page') ? $request->input('per_page'):10;
+
+        $data = Booking::join('users','bookings.id_approver','=','users.id')
+                ->join('vehicles','bookings.id_vehicle','=','vehicles.id')
+                ->where('bookings.id_approver', Auth::id())
+                ->orderBy('bookings.applicant','asc')
+                ->paginate($per_page);
+
+        $mappedData = $data -> map(function ($item){
+           return
+           [
+                'id'=>$item->id,
+                'driver'=>$item->driver,
+                'applicant'=>$item->applicant,
+                'status'=>$item->status,
+                'start_book'=>$item->start_book,
+                'end_book'=>$item->end_book,
+                'apporved_by'=>[
+                    'id_users'=>$item->approver->id??null,
+                    'name'=>$item->approver->username??null
+                ],
+                'vehicle'=>[
+                    'id_vehicle'=>$item->vehicle->id??null,
+                    'name'=>$item->vehicle->name??null
+                ]
+            ];
+        });
+
+        return new JsonResponse([
+            "status" => true,
+            "message" => 'Success',
+            "data"=> $mappedData,
+            "pagination" => [
+                "current_page" => $data->currentPage(),
+                "per_page" => $data->perPage(),
+                "total" => $data->total(),
+            ],
+        ]);
+    }
+
+    public function indexAdmin(Request $request)
+    {
+        $per_page = $request->filled('per_page') ? $request->input('per_page'):10;
+
+        $data = Booking::join('users','bookings.id_approver','=','users.id')
+                ->join('vehicles','bookings.id_vehicle','=','vehicles.id')
+                ->orderBy('bookings.applicant','asc')
+                ->paginate($per_page);
+
+        $mappedData = $data -> map(function ($item){
+           return
+           [
+                'id'=>$item->id,
+                'driver'=>$item->driver,
+                'applicant'=>$item->applicant,
+                'status'=>$item->status,
+                'start_book'=>$item->start_book,
+                'end_book'=>$item->end_book,
+                'apporved_by'=>[
+                    'id_users'=>$item->approver->id??null,
+                    'name'=>$item->approver->username??null
+                ],
+                'vehicle'=>[
+                    'id_vehicle'=>$item->vehicle->id??null,
+                    'name'=>$item->vehicle->name??null
+                ]
+            ];
+        });
+
+        return new JsonResponse([
+            "status" => true,
+            "message" => 'Success',
+            "data"=> $mappedData,
+            "pagination" => [
+                "current_page" => $data->currentPage(),
+                "per_page" => $data->perPage(),
+                "total" => $data->total(),
+            ],
+        ]);
     }
 
     /**
@@ -114,23 +191,6 @@ class BookingController extends Controller
             'status'=>true,
             'message'=>'Success',
             'data'=>null
-            // [
-            // 'id'=>$booking->id,
-            // 'driver'=>$booking->driver,
-            // 'applicant'=>$booking->applicant,
-            // 'is_approval'=>$approval,
-            // 'need_approval'=>$status,
-            // 'start_book'=>$booking->start_book,
-            // 'end_book'=>$booking->end_book,
-            // 'apporved_by'=>[
-            //     'id_users'=>$booking->approver->id??null,
-            //     'name'=>$booking->approver->username??null
-            // ],
-            // 'vehicle'=>[
-            //     'id_vehicle'=>$booking->vehicle->id??null,
-            //     'name'=>$booking->vehicle->name??null
-            // ]
-            // ]
         ]);
     }
 

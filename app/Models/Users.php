@@ -19,7 +19,7 @@ class Users extends Authenticatable implements JWTSubject
 
     public function role()
     {
-        return $this->belongsTo(Roles::class,'id','id_role');
+        return $this->belongsTo(Roles::class,'id_role');
     }
 
     public function approver(){
@@ -33,6 +33,9 @@ class Users extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+                'id' => $this->id,
+                'role' => optional($this->role)->name,
+            ];
     }
 }

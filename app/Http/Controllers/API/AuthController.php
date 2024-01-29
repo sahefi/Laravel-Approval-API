@@ -85,7 +85,7 @@ class AuthController extends Controller
         }
         $credentials = $request->only(['username', 'password']);
         if (! $token = auth()->attempt($credentials)) {
-            return response()->json([
+            return new JsonResponse([
                 'status'=>false,
                 'error'=>'Credential Not Match'
             ] , 401);
