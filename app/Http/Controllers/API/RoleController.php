@@ -86,9 +86,6 @@ class RoleController extends Controller
             'data'=>[
                 'id'=>$role->id,
                 'name'=>$role->name,
-                "created_at"=>$role->created_at,
-                "updated_at"=>$role->update_at,
-                "deleted_at"=>$role->deleted_at
             ]
         ]);
     }
@@ -100,7 +97,7 @@ class RoleController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-    
+
     public function show($id)
     {
         //

@@ -4,9 +4,11 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Users;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class BookingController extends Controller
@@ -23,6 +25,14 @@ class BookingController extends Controller
             'end_book'=>['date','required']
         ]);
 
+        return $dataValidator;
+    }
+
+    function approvalValidator(array $data){
+        $dataValidator = Validator::make($data,[
+            'id'=>['uuid','required','exists:bookings,id'],
+            'status'=>['required']
+        ]);
         return $dataValidator;
     }
     public function index()
@@ -67,10 +77,11 @@ class BookingController extends Controller
                 'id'=>$booking->id,
                 'driver'=>$booking->driver,
                 'applicant'=>$booking->applicant,
+                'status'=>$booking->status,
                 'start_book'=>$booking->start_book,
                 'end_book'=>$booking->end_book,
                 'apporved_by'=>[
-                    'id_users'=>$booking->approver->id??null,
+                    'id_approver'=>$booking->approver->id??null,
                     'name'=>$booking->approver->username??null
                 ],
                 'vehicle'=>[
@@ -81,46 +92,53 @@ class BookingController extends Controller
         ]);
 
     }
+
     public function approve(Request $request)
     {
-        $id = $request->query('id');
-        $booking = Booking::where('id', $id)->first();
+        $validator = $this->approvalValidator($request->all());
+        if($validator->fails()){
+            return new JsonResponse(['error' => $validator->errors()],422);
+        }
 
-        $booking->update([
-            'is_approved' => 1,
-            'need_approval' => 0
-        ]);
+        $booking = Booking::find($request->input('id'));
 
-        $approval = $booking->is_approved == 1 ? 'Approved' : 'Rejected';
-        $status = $booking->need_approval == 1 ? 'Pending' : 'Done';
+        $booking->is_approved = $request->input('approver');
+        $booking->need_approval = false;
+
+        $booking->save();
+
+        // $approval = $booking->is_approved == 1 ? 'Approved' : 'Rejected';
+        // $status = $booking->need_approval == 1 ? 'Pending' : 'Done';
 
 
         return new JsonResponse([
             'status'=>true,
             'message'=>'Success',
-            'data'=>['id'=>$booking->id,
-            'driver'=>$booking->driver,
-            'applicant'=>$booking->applicant,
-            'is_approval'=>$approval,
-            'need_approval'=>$status,
-            'start_book'=>$booking->start_book,
-            'end_book'=>$booking->end_book,
-            'apporved_by'=>[
-                'id_users'=>$booking->approver->id??null,
-                'name'=>$booking->approver->username??null
-            ],
-            'vehicle'=>[
-                'id_vehicle'=>$booking->vehicle->id??null,
-                'name'=>$booking->vehicle->name??null
-            ]
-            ]
+            'data'=>null
+            // [
+            // 'id'=>$booking->id,
+            // 'driver'=>$booking->driver,
+            // 'applicant'=>$booking->applicant,
+            // 'is_approval'=>$approval,
+            // 'need_approval'=>$status,
+            // 'start_book'=>$booking->start_book,
+            // 'end_book'=>$booking->end_book,
+            // 'apporved_by'=>[
+            //     'id_users'=>$booking->approver->id??null,
+            //     'name'=>$booking->approver->username??null
+            // ],
+            // 'vehicle'=>[
+            //     'id_vehicle'=>$booking->vehicle->id??null,
+            //     'name'=>$booking->vehicle->name??null
+            // ]
+            // ]
         ]);
     }
 
     public function decline($id)
     {
         Booking::where('id', $id)->update(['is_approved' => 0, 'need_approval' => 0]);
-        return redirect('/approvalPage')->with('message', 'Permohonan berhasil ditolak');
+        return redirect('/approvalPage')->with('message', 'Sucess');
     }
 
 

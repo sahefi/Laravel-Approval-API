@@ -19,8 +19,7 @@ return new class extends Migration
             $table->foreignUuid('id_vehicle')->references('id')->on('vehicles');
             $table->string('applicant');
             $table->foreignUuid('id_approver')->references('id')->on('users');
-            $table->boolean('is_approved')->default(0);
-            $table->boolean('need_approval')->default(1);
+            $table->enum('status',["PENDING","APPROVED","REJECTED"])->default("PENDING");
             $table->timestampTz('start_book');
             $table->timestampTz('end_book');
             $table->timestamps();

@@ -13,7 +13,7 @@ class Booking extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     public $keyType = 'string';
-    public $fillable = ['driver', 'id_vehicle', 'applicant', 'id_approver', 'is_approved', 'need_approval', 'start_book', 'end_book'];
+    public $fillable = ['driver', 'id_vehicle', 'applicant', 'id_approver','status', 'start_book', 'end_book'];
 
     protected $date = ['start_book,end_book'];
     public function vehicle(){

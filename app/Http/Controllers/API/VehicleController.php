@@ -66,7 +66,7 @@ class VehicleController extends Controller
      */
     public function show($id)
     {
-        //
+        
     }
 
     /**
