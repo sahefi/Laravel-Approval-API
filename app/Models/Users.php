@@ -15,7 +15,7 @@ class Users extends Authenticatable implements JWTSubject
     public $incrementing = false;
     public $keyType = 'string';
     protected $fillable = ['username','email','password','id_role'];
-    protected $hidden = ['password'];
+    protected $hidden = ['password','created_at','updated_at'];
 
     public function role()
     {

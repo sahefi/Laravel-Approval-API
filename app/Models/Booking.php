@@ -15,6 +15,7 @@ class Booking extends Model
     public $keyType = 'string';
     public $fillable = ['driver', 'id_vehicle', 'applicant', 'id_approver','status', 'start_book', 'end_book'];
 
+    protected $hidden = ['created_at','updated_at'];
     protected $date = ['start_book,end_book'];
     public function vehicle(){
         return $this->hasOne(Vehicles::class,'id','id_vehicle');

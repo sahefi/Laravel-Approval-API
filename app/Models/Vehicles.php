@@ -15,6 +15,7 @@ class Vehicles extends Model
     public $keyType = 'string';
     protected $fillable = ['name','type','fuel_consumption','service_schedule'];
 
+    protected $hidden = ['created_at','updated_at'];
     public function booking(){
         return $this->hasOne(Vehicles::class,'id','id_vehicle');
     }

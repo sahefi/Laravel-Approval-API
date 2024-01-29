@@ -15,6 +15,7 @@ class Roles extends Model
     public $keyType = 'string';
     protected $fillable = ['name'];
 
+    protected $hidden = ['created_at','updated_at','deleted_at'];
     public function user(){
         return $this->hasMany(Users::class,'id_role');
     }
