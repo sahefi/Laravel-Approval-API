@@ -20,6 +20,7 @@ class BookingController extends Controller
             'driver'=>['string','required'],
             'id_vehicle'=>['string','required','exists:vehicles,id'],
             'applicant'=>['string','required'],
+            'status'=>['required'],
             'id_approver'=>['string','required','exists:users,id'],
             'start_book'=>['date','required'],
             'end_book'=>['date','required']
@@ -77,7 +78,6 @@ class BookingController extends Controller
                 'id'=>$booking->id,
                 'driver'=>$booking->driver,
                 'applicant'=>$booking->applicant,
-                'status'=>$booking->status,
                 'start_book'=>$booking->start_book,
                 'end_book'=>$booking->end_book,
                 'apporved_by'=>[
@@ -102,8 +102,7 @@ class BookingController extends Controller
 
         $booking = Booking::find($request->input('id'));
 
-        $booking->is_approved = $request->input('approver');
-        $booking->need_approval = false;
+        $booking->status = $request->input('status');
 
         $booking->save();
 
@@ -133,12 +132,6 @@ class BookingController extends Controller
             // ]
             // ]
         ]);
-    }
-
-    public function decline($id)
-    {
-        Booking::where('id', $id)->update(['is_approved' => 0, 'need_approval' => 0]);
-        return redirect('/approvalPage')->with('message', 'Sucess');
     }
 
 

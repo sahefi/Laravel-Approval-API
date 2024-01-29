@@ -44,8 +44,8 @@ use Illuminate\Support\Facades\Route;
 // Route::group(['middleware'=>['jwt.auth']],function(){
     Route::get('vehicle',[VehicleController::class,'index']);
     Route::post('vehicle',[VehicleController::class,'store']);
-    Route::patch('vehicle',[UserController::class,'update']);
-    Route::delete('vehicle',[UserController::class,'destroy']);
+    Route::patch('vehicle',[VehicleController::class,'update']);
+    Route::delete('vehicle',[VehicleController::class,'destroy']);
 
 // });
 
